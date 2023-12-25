@@ -32,14 +32,38 @@ public class Board {
 
     // number of tiles out of place
     public int hamming() {
-        // TODO
-        return 0;
+        int distance = 0;
+        int size = this.dimension();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                int number = 1 + (size * i) + j;
+
+                if (this.tiles[i][j] != 0 && this.tiles[i][j] != number) {
+                    distance++;
+                }
+            }
+        }
+        return distance;
     }
 
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
-        // TODO
-        return 0;
+        int distance = 0;
+        int size = this.dimension();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                // int number = (1 + (size * i) + j) % (size * size);
+                int value = (this.tiles[i][j] - 1);
+                if (value == -1) {
+                    continue;
+                }
+                int col = value % size;
+                int row = value / size;
+                distance += (Math.abs(i - row) + Math.abs(j - col));
+
+            }
+        }
+        return distance;
     }
 
     // is this board the goal board?
@@ -50,7 +74,21 @@ public class Board {
 
     // does this board equal y?
     public boolean equals(Object y) {
-        // TODO
+        if (y.getClass() != Board.class) {
+            return false;
+        }
+        Board y1 = (Board) y;
+        if (y1.dimension() != this.dimension()) {
+            return false;
+        }
+        int size = this.dimension();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (this.tiles[i][j] != y1.tiles[i][j]) {
+                    return false;
+                }
+            }
+        }
         return true;
     }
 
@@ -68,9 +106,18 @@ public class Board {
 
     // unit testing (not graded)
     public static void main(String[] args) {
-        int[][] tiles = { { 1, 2, 3 }, { 1, 2, 3 }, { 1, 2, 0 } };
+        // int[][] tiles = { { 1, 2, 3 }, { 1, 2, 3 }, { 1, 2, 0 } };
+        int[][] tiles = { { 1, 2, 3 }, { 4, 5, 6 }, { 8, 7, 0 } };
+        // int[][] tiles = { { 8, 1, 3 }, { 4, 0, 2 }, { 7, 6, 5 } };
         Board board = new Board(tiles);
         StdOut.println(board.toString());
+
+        StdOut.println("hamming: " + board.hamming());
+        StdOut.println("manhattan: " + board.manhattan());
+
+        int[][] tiles2 = { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 0 } };
+        Board board2 = new Board(tiles2);
+        StdOut.println("isEqual: " + board.equals(board2));
 
     }
 
