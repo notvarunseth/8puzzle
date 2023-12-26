@@ -1,15 +1,34 @@
 import edu.princeton.cs.algs4.StdOut;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Board {
     private int[][] tiles;
+    private int zeroRow;
+    private int zeroCol;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
     public Board(int[][] tiles) {
         // TODO
-        this.tiles = tiles;
+        this.tiles = this.copyTiles(tiles);
+        this.locateZero();
+    }
+
+    private void locateZero() {
+        int size = this.dimension();
+        this.zeroRow = -1;
+        this.zeroCol = -1;
+        for (int i = 0; i < size && (this.zeroRow == -1); i++) {
+            for (int j = 0; j < size && (this.zeroCol == -1); j++) {
+                // StdOut.println("i: " + i + "j: " + j + "size: " + size);
+                if (tiles[i][j] == 0) {
+                    this.zeroRow = i;
+                    this.zeroCol = j;
+                }
+            }
+        }
     }
 
     // string representation of this board
@@ -92,10 +111,36 @@ public class Board {
         return true;
     }
 
+    private int[][] copyTiles(int[][] tiles) {
+        int size = tiles.length;
+        int[][] newTiles = new int[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                newTiles[i][j] = tiles[i][j];
+            }
+        }
+        return newTiles;
+    }
+
     // all neighboring boards
     public Iterable<Board> neighbors() {
-        // TODO
-        return new ArrayList<Board>();
+        // this.zeroRow; this.zeroCol
+        int size = this.dimension();
+        List<Board> mylist = new ArrayList<Board>();
+        int[][] directions = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
+        for (int[] direction : directions) {
+            int newRow = this.zeroRow + direction[0];
+            int newCol = this.zeroCol + direction[1];
+            if (newRow < 0 || newCol < 0 || newRow >= size || newCol >= size) {
+                continue;
+            }
+
+            int[][] newTiles = this.copyTiles(this.tiles);
+            newTiles[zeroRow][zeroCol] = newTiles[newRow][newCol];
+            newTiles[newRow][newCol] = 0;
+            mylist.add(new Board(newTiles));
+        }
+        return mylist;
     }
 
     // a board that is obtained by exchanging any pair of tiles
@@ -107,8 +152,8 @@ public class Board {
     // unit testing (not graded)
     public static void main(String[] args) {
         // int[][] tiles = { { 1, 2, 3 }, { 1, 2, 3 }, { 1, 2, 0 } };
-        int[][] tiles = { { 1, 2, 3 }, { 4, 5, 6 }, { 8, 7, 0 } };
-        // int[][] tiles = { { 8, 1, 3 }, { 4, 0, 2 }, { 7, 6, 5 } };
+        // int[][] tiles = { { 1, 2, 3 }, { 4, 5, 6 }, { 8, 7, 0 } };
+        int[][] tiles = { { 8, 1, 3 }, { 4, 0, 2 }, { 7, 6, 5 } };
         Board board = new Board(tiles);
         StdOut.println(board.toString());
 
@@ -118,6 +163,11 @@ public class Board {
         int[][] tiles2 = { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 0 } };
         Board board2 = new Board(tiles2);
         StdOut.println("isEqual: " + board.equals(board2));
+
+        for (Board neighbor : board.neighbors()) {
+            StdOut.println(neighbor);
+        }
+
 
     }
 
