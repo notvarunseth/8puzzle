@@ -11,7 +11,6 @@ public class Board {
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
     public Board(int[][] tiles) {
-        // TODO
         this.tiles = this.copyTiles(tiles);
         this.locateZero();
     }
@@ -87,8 +86,7 @@ public class Board {
 
     // is this board the goal board?
     public boolean isGoal() {
-        // TODO
-        return false;
+        return this.manhattan() == 0;
     }
 
     // does this board equal y?
@@ -145,15 +143,30 @@ public class Board {
 
     // a board that is obtained by exchanging any pair of tiles
     public Board twin() {
-        // TODO
-        return this;
+        int[][] twinTiles = this.copyTiles(this.tiles);
+        // Board boards = new ArrayList<Board>();
+        int count = 0;
+        Board board1 = null;
+        Board board2 = null;
+        for (Board board : this.neighbors()) {
+            if (count == 0) {
+                board1 = board;
+            }
+            if (count == 1) {
+                board2 = board;
+            }
+            count++;
+        }
+        twinTiles[board1.zeroRow][board1.zeroCol] = this.tiles[board2.zeroRow][board2.zeroCol];
+        twinTiles[board2.zeroRow][board2.zeroCol] = this.tiles[board1.zeroRow][board1.zeroCol];
+        return new Board(twinTiles);
     }
 
     // unit testing (not graded)
     public static void main(String[] args) {
         // int[][] tiles = { { 1, 2, 3 }, { 1, 2, 3 }, { 1, 2, 0 } };
-        // int[][] tiles = { { 1, 2, 3 }, { 4, 5, 6 }, { 8, 7, 0 } };
-        int[][] tiles = { { 8, 1, 3 }, { 4, 0, 2 }, { 7, 6, 5 } };
+        int[][] tiles = { { 1, 2, 3 }, { 4, 5, 6 }, { 8, 7, 0 } };
+        // int[][] tiles = { { 8, 1, 3 }, { 4, 0, 2 }, { 7, 6, 5 } };
         Board board = new Board(tiles);
         StdOut.println(board.toString());
 
@@ -167,6 +180,9 @@ public class Board {
         for (Board neighbor : board.neighbors()) {
             StdOut.println(neighbor);
         }
+
+
+        StdOut.println("twin: " + board.twin());
 
 
     }

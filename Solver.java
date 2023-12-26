@@ -2,10 +2,14 @@ import java.util.ArrayList;
 
 public class Solver {
     private Board board;
+    private Board draob;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
         this.board = initial;
+        this.draob = board.twin();
+
+        
     }
 
     // is the initial board solvable? (see below)
