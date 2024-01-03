@@ -12,20 +12,24 @@ public class Solver {
     private class Node {
         Board current;
         Board previous;
-        int cost;
+        int distance;
+        int steps;
 
-        public Node(Board current, Board previous, int cost) {
+        public Node(Board current, Board previous, int steps, int distance) {
             this.current = current;
             this.previous = previous;
-            this.cost = cost;
+            this.steps = steps;
+            this.distance = distance;
         }
     }
 
     private Comparator<Node> c = (o1, o2) -> {
-        if (o1.cost == o2.cost) {
-            return o2.current.manhattan() - o1.current.manhattan();
+        int cost1 = o1.steps + o1.distance;
+        int cost2 = o2.steps + o2.distance;
+        if (cost1 == cost2) {
+            return o1.steps - o2.steps;
         }
-        return o1.cost - o2.cost;
+        return cost1 - cost2;
     };
 
 
@@ -33,7 +37,7 @@ public class Solver {
     private List<Board> solution = new ArrayList<>();
 
     private Node simulate(Node node, MinPQ<Node> q, boolean isTwin) {
-        int steps = node.cost - node.current.manhattan();
+
         for (Board neighbor : node.current.neighbors()) {
             int distance = neighbor.manhattan();
             // StdOut.println(
@@ -42,8 +46,8 @@ public class Solver {
                 continue;
             }
 
-            int cost = steps + 1 + distance;
-            Node newNode = new Node(neighbor, node.current, cost);
+
+            Node newNode = new Node(neighbor, node.current, node.steps + 1, distance);
             q.insert(newNode);
 
             if (distance == 0) {
@@ -66,15 +70,15 @@ public class Solver {
 
         List<Node> history = new ArrayList<Node>();
 
-        q1.insert(new Node(initial, null, initial.manhattan()));
+        q1.insert(new Node(initial, null, 0, initial.manhattan()));
         Board twin = initial.twin();
-        q2.insert(new Node(twin, null, twin.manhattan()));
+        q2.insert(new Node(twin, null, 0, twin.manhattan()));
 
         while (!q1.isEmpty() && !q2.isEmpty()) {
             Node node1 = q1.delMin();
 
             history.add(node1);
-            if (node1.cost == 0) {
+            if (node1.distance == 0) {
                 this.solvable = true;
                 break;
             }
