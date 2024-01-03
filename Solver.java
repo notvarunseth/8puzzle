@@ -25,26 +25,28 @@ public class Solver {
     private boolean solvable;
     private List<Board> solution = new ArrayList<>();
 
-    private boolean simulate(Node node, MinPQ<Node> q, boolean isTwin) {
+    private Node simulate(Node node, MinPQ<Node> q, boolean isTwin) {
         int steps = node.cost - node.current.manhattan();
         for (Board neighbor : node.current.neighbors()) {
             int distance = neighbor.manhattan();
-            // StdOut.println("distance: " + distance + " steps: " + steps);
-            if (neighbor == node.previous) {
+            // StdOut.println(
+            //         "distance: " + distance + " steps: " + steps + " qSize: " + q.size());
+            if (neighbor.equals(node.previous)) {
                 continue;
             }
 
             int cost = steps + 1 + distance;
-            q.insert(new Node(neighbor, node.current, cost));
+            Node newNode = new Node(neighbor, node.current, cost);
+            q.insert(newNode);
 
             if (distance == 0) {
                 // StdOut.println("solved: " + neighbor + " from: " + node.current);
                 this.solvable = !isTwin;
-                return true;
+                return newNode;
             }
 
         }
-        return false;
+        return null;
     }
 
     // find a solution to the initial board (using the A* algorithm)
@@ -57,24 +59,21 @@ public class Solver {
 
         while (!q1.isEmpty() && !q2.isEmpty()) {
             Node node1 = q1.delMin();
-            // if (history.size() > 100) {
-            //     StdOut.println("exiting");
-            //     System.exit(0);
-            // }
+
             history.add(node1);
             if (node1.cost == 0) {
                 this.solvable = true;
                 break;
             }
-            // StdOut.println("history length: " + history.size());
 
-            if (simulate(node1, q1, false)) {
-                history.add(q1.min());
+            Node goalNode = simulate(node1, q1, false);
+            if (goalNode != null) {
+                history.add(goalNode);
                 break;
             }
 
             Node node2 = q2.delMin();
-            if (simulate(node2, q2, true)) {
+            if (simulate(node2, q2, true) != null) {
                 break;
             }
             // StdOut.println("q1 length: " + q1.size());
@@ -87,17 +86,11 @@ public class Solver {
             Node lastElement = null;
             for (int i = history.size() - 1; i >= 0; i--) {
                 Node element = history.get(i);
-                if (lastElement == null) {
+                if (lastElement == null || lastElement.previous.equals(element.current)) {
+                    this.solution.add(element.current);
                     lastElement = element;
-                    this.solution.add(element.current);
-                    // StdOut.println("state: " + element.current.manhattan() + " " + element.current);
-                    continue;
                 }
-                if (lastElement.previous == element.current) {
-                    this.solution.add(element.current);
-                    // StdOut.println("state: " + element.current.manhattan() + " " + element.current);
-                }
-                lastElement = element;
+
             }
             List<Board> solution2 = new ArrayList<Board>();
             for (int i = solution.size() - 1; i >= 0; i--) {
@@ -107,6 +100,7 @@ public class Solver {
         }
         else {
             history.clear();
+            this.solution = null;
         }
     }
 

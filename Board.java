@@ -11,6 +11,9 @@ public class Board {
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
     public Board(int[][] tiles) {
+        if (tiles == null) {
+            throw new IllegalArgumentException();
+        }
         this.tiles = this.copyTiles(tiles);
         this.locateZero();
     }
@@ -91,7 +94,7 @@ public class Board {
 
     // does this board equal y?
     public boolean equals(Object y) {
-        if (y.getClass() != Board.class) {
+        if (y == null || y.getClass() != Board.class) {
             return false;
         }
         Board y1 = (Board) y;
@@ -136,7 +139,8 @@ public class Board {
             int[][] newTiles = this.copyTiles(this.tiles);
             newTiles[zeroRow][zeroCol] = newTiles[newRow][newCol];
             newTiles[newRow][newCol] = 0;
-            mylist.add(new Board(newTiles));
+            Board board = new Board(newTiles);
+            mylist.add(board);
         }
         return mylist;
     }
