@@ -7,6 +7,8 @@ public class Board {
     private int[][] tiles;
     private int zeroRow;
     private int zeroCol;
+    private int manhattan = -1;
+    private int hamming = -1;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -53,6 +55,9 @@ public class Board {
 
     // number of tiles out of place
     public int hamming() {
+        if (this.hamming >= 0) {
+            return this.hamming;
+        }
         int distance = 0;
         int size = this.dimension();
         for (int i = 0; i < size; i++) {
@@ -64,11 +69,16 @@ public class Board {
                 }
             }
         }
+        this.hamming = distance;
         return distance;
     }
 
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
+        if (this.manhattan >= 0) {
+            return this.manhattan;
+        }
+
         int distance = 0;
         int size = this.dimension();
         for (int i = 0; i < size; i++) {
@@ -84,6 +94,7 @@ public class Board {
 
             }
         }
+        this.manhattan = distance;
         return distance;
     }
 
@@ -128,7 +139,7 @@ public class Board {
         // this.zeroRow; this.zeroCol
         int size = this.dimension();
         List<Board> mylist = new ArrayList<Board>();
-        int[][] directions = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
+        int[][] directions = { { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 } };
         for (int[] direction : directions) {
             int newRow = this.zeroRow + direction[0];
             int newCol = this.zeroCol + direction[1];

@@ -3,6 +3,7 @@ import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.StdOut;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class Solver {
@@ -20,8 +21,14 @@ public class Solver {
         }
     }
 
-    private MinPQ<Node> q1 = new MinPQ<>((o1, o2) -> o1.cost - o2.cost);
-    private MinPQ<Node> q2 = new MinPQ<>((o1, o2) -> o1.cost - o2.cost);
+    private Comparator<Node> c = (o1, o2) -> {
+        if (o1.cost == o2.cost) {
+            return o2.current.manhattan() - o1.current.manhattan();
+        }
+        return o1.cost - o2.cost;
+    };
+
+
     private boolean solvable;
     private List<Board> solution = new ArrayList<>();
 
@@ -51,6 +58,12 @@ public class Solver {
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
+        if (initial == null) {
+            throw new IllegalArgumentException();
+        }
+        MinPQ<Node> q1 = new MinPQ<>(c);
+        MinPQ<Node> q2 = new MinPQ<>(c);
+
         List<Node> history = new ArrayList<Node>();
 
         q1.insert(new Node(initial, null, initial.manhattan()));
@@ -111,6 +124,9 @@ public class Solver {
 
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves() {
+        if (this.solution == null) {
+            return -1;
+        }
         return this.solution.size() - 1;
     }
 
@@ -135,8 +151,11 @@ public class Solver {
         Solver solver = new Solver(initial);
 
         // print solution to standard output
-        if (!solver.isSolvable())
+        if (!solver.isSolvable()) {
             StdOut.println("No solution possible");
+            StdOut.println("moves: " + solver.moves());
+        }
+
         else {
             StdOut.println("Minimum number of moves = " + solver.moves());
             for (Board board : solver.solution())
