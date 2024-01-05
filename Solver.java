@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class Solver {
+public
+class Solver {
 
 
     private static class Node {
@@ -28,54 +29,44 @@ public class Solver {
     private Comparator<Node> c = (o1, o2) -> {
         int cost1 = o1.steps + o1.distance;
         int cost2 = o2.steps + o2.distance;
-        if (o1.isTwin) {
-            cost1 *= 1.5;
-        }
-        if (o2.isTwin) {
-            cost2 *= 1.5;
-        }
 
         if (cost1 != cost2) {
             return cost1 - cost2;
         }
-        
+
+        if (o1.distance != o2.distance) {
+            return o1.distance - o2.distance;
+        }
+
         // if (!o1.isTwin && o2.isTwin) {
         //     return -1;
         // }
-        // else if (o1.isTwin && !o2.isTwin) {
+        // if (o1.isTwin && !o2.isTwin) {
         //     return 1;
         // }
-        return o1.steps - o2.steps;
-
+        return 0;
     };
 
 
     private boolean solvable;
     private List<Board> solution = new ArrayList<>();
 
-    private Node simulate(Node node, MinPQ<Node> q) {
+    private void simulate(Node node, MinPQ<Node> q) {
 
         for (Board neighbor : node.current.neighbors()) {
             int distance = neighbor.manhattan();
+            // StdOut.println("distance: " + neighbor.manhattan() + " isTwin: " + node.isTwin);
             // StdOut.println(
             //         "distance: " + distance + " steps: " + steps + " qSize: " + q.size());
             if (neighbor.equals(node.previous)) {
                 continue;
             }
 
-
             Node newNode = new Node(neighbor, node.current, node.steps + 1, distance, node.isTwin);
 
-
-            if (distance == 0) {
-                // StdOut.println("solved: " + neighbor + " from: " + node.current);
-                this.solvable = !node.isTwin;
-                return newNode;
-            }
             q.insert(newNode);
 
         }
-        return null;
     }
 
     // find a solution to the initial board (using the A* algorithm)
@@ -83,6 +74,7 @@ public class Solver {
         if (initial == null) {
             throw new IllegalArgumentException();
         }
+
         MinPQ<Node> q1 = new MinPQ<>(c);
 
         List<Node> history = new ArrayList<Node>();
@@ -98,20 +90,12 @@ public class Solver {
                 history.add(node1);
             }
 
-            if (node1.distance == 0) {
+            if (node1.current.isGoal()) {
                 // first node is already solved
                 this.solvable = !node1.isTwin;
                 break;
             }
-
-            Node goalNode = simulate(node1, q1);
-            if (goalNode != null) {
-                if (!goalNode.isTwin) {
-                    history.add(goalNode);
-                }
-
-                break;
-            }
+            simulate(node1, q1);
 
         }
 

@@ -7,6 +7,8 @@ public class Board {
     private int[][] tiles;
     private int zeroRow;
     private int zeroCol;
+    private int manhattanDistance = -1;
+    private int hammingDistance = -1;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -53,6 +55,8 @@ public class Board {
 
     // number of tiles out of place
     public int hamming() {
+        if (this.hammingDistance >= 0) return this.hammingDistance;
+
         int distance = 0;
         int size = this.dimension();
         for (int i = 0; i < size; i++) {
@@ -64,11 +68,13 @@ public class Board {
                 }
             }
         }
+        this.hammingDistance = distance;
         return distance;
     }
 
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
+        if (this.manhattanDistance >= 0) return this.manhattanDistance;
         int distance = 0;
         int size = this.dimension();
         for (int i = 0; i < size; i++) {
@@ -84,6 +90,7 @@ public class Board {
 
             }
         }
+        this.manhattanDistance = distance;
         return distance;
     }
 
