@@ -28,10 +28,24 @@ public class Solver {
     private Comparator<Node> c = (o1, o2) -> {
         int cost1 = o1.steps + o1.distance;
         int cost2 = o2.steps + o2.distance;
-        if (cost1 == cost2) {
-            return o1.steps - o2.steps;
+        if (o1.isTwin) {
+            cost1 *= 2;
         }
-        return cost1 - cost2;
+        if (o2.isTwin) {
+            cost2 *= 2;
+        }
+
+        if (cost1 != cost2) {
+            // if (!o1.isTwin && o2.isTwin) {
+            //     return -1;
+            // }
+            // else if (o1.isTwin && !o2.isTwin) {
+            //     return 1;
+            // }
+            return cost1 - cost2;
+        }
+        return o1.steps - o2.steps;
+
     };
 
 
