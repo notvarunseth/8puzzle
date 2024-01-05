@@ -9,17 +9,19 @@ import java.util.List;
 public class Solver {
 
 
-    private class Node {
+    private static class Node {
         Board current;
         Board previous;
         int distance;
         int steps;
+        boolean isTwin;
 
-        public Node(Board current, Board previous, int steps, int distance) {
+        public Node(Board current, Board previous, int steps, int distance, boolean isTwin) {
             this.current = current;
             this.previous = previous;
             this.steps = steps;
             this.distance = distance;
+            this.isTwin = isTwin;
         }
     }
 
@@ -36,7 +38,7 @@ public class Solver {
     private boolean solvable;
     private List<Board> solution = new ArrayList<>();
 
-    private Node simulate(Node node, MinPQ<Node> q, boolean isTwin) {
+    private Node simulate(Node node, MinPQ<Node> q) {
 
         for (Board neighbor : node.current.neighbors()) {
             int distance = neighbor.manhattan();
@@ -47,14 +49,15 @@ public class Solver {
             }
 
 
-            Node newNode = new Node(neighbor, node.current, node.steps + 1, distance);
-            q.insert(newNode);
+            Node newNode = new Node(neighbor, node.current, node.steps + 1, distance, node.isTwin);
+
 
             if (distance == 0) {
                 // StdOut.println("solved: " + neighbor + " from: " + node.current);
-                this.solvable = !isTwin;
+                this.solvable = !node.isTwin;
                 return newNode;
             }
+            q.insert(newNode);
 
         }
         return null;
@@ -66,53 +69,55 @@ public class Solver {
             throw new IllegalArgumentException();
         }
         MinPQ<Node> q1 = new MinPQ<>(c);
-        MinPQ<Node> q2 = new MinPQ<>(c);
 
         List<Node> history = new ArrayList<Node>();
 
-        q1.insert(new Node(initial, null, 0, initial.manhattan()));
+        q1.insert(new Node(initial, null, 0, initial.manhattan(), false));
         Board twin = initial.twin();
-        q2.insert(new Node(twin, null, 0, twin.manhattan()));
+        q1.insert(new Node(twin, null, 0, twin.manhattan(), true));
 
-        while (!q1.isEmpty() && !q2.isEmpty()) {
+        while (!q1.isEmpty()) {
             Node node1 = q1.delMin();
 
-            history.add(node1);
+            if (!node1.isTwin) {
+                history.add(node1);
+            }
+
             if (node1.distance == 0) {
-                this.solvable = true;
+                // first node is already solved
+                this.solvable = !node1.isTwin;
                 break;
             }
 
-            Node goalNode = simulate(node1, q1, false);
+            Node goalNode = simulate(node1, q1);
             if (goalNode != null) {
-                history.add(goalNode);
+                if (!goalNode.isTwin) {
+                    history.add(goalNode);
+                }
+
                 break;
             }
 
-            Node node2 = q2.delMin();
-            if (simulate(node2, q2, true) != null) {
-                break;
-            }
-            // StdOut.println("q1 length: " + q1.size());
-
-            // StdOut.println("q2 length: " + q2.size());
         }
 
+        // StdOut.println("solved the board");
         if (this.solvable) {
             // process
             Node lastElement = null;
             for (int i = history.size() - 1; i >= 0; i--) {
                 Node element = history.get(i);
-                if (lastElement == null || lastElement.previous.equals(element.current)) {
+                if (lastElement == null || lastElement.previous == element.current) {
                     this.solution.add(element.current);
                     lastElement = element;
                 }
 
             }
+            // StdOut.println("generated the solution");
             List<Board> solution2 = new ArrayList<Board>();
             for (int i = solution.size() - 1; i >= 0; i--) {
                 solution2.add(solution.get(i));
             }
+            // StdOut.println("generated the solution2");
             this.solution = solution2;
         }
         else {
@@ -143,6 +148,7 @@ public class Solver {
     public static void main(String[] args) {
 
         // create initial board from file
+        long time1 = System.currentTimeMillis();
         In in = new In(args[0]);
         int n = in.readInt();
         int[][] tiles = new int[n][n];
@@ -165,6 +171,8 @@ public class Solver {
             for (Board board : solver.solution())
                 StdOut.println(board);
         }
+
+        StdOut.println("time: " + (System.currentTimeMillis() - time1));
 
         /*
 
