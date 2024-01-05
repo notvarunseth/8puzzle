@@ -34,6 +34,7 @@ public class PuzzleChecker {
 
         // for each command-line argument
         for (String filename : args) {
+            long time1 = System.currentTimeMillis();
 
             // read in the board specified in the filename
             In in = new In(filename);
@@ -48,7 +49,9 @@ public class PuzzleChecker {
             // solve the slider puzzle
             Board initial = new Board(tiles);
             Solver solver = new Solver(initial);
-            StdOut.println(filename + ": " + solver.moves());
+            StdOut.println(filename + ": " + solver.moves()
+                                   + "\t time: " + (System.currentTimeMillis() - time1));
+
         }
     }
 }

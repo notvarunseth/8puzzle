@@ -30,21 +30,18 @@ class Solver {
         int cost1 = o1.steps + o1.distance;
         int cost2 = o2.steps + o2.distance;
 
+        if (o1.isTwin) {
+            cost1 *= 1.2;
+        }
+        if (o2.isTwin) {
+            cost2 *= 1.2;
+        }
+
         if (cost1 != cost2) {
             return cost1 - cost2;
         }
 
-        if (o1.distance != o2.distance) {
-            return o1.distance - o2.distance;
-        }
-
-        // if (!o1.isTwin && o2.isTwin) {
-        //     return -1;
-        // }
-        // if (o1.isTwin && !o2.isTwin) {
-        //     return 1;
-        // }
-        return 0;
+        return o1.distance - o2.distance;
     };
 
 
